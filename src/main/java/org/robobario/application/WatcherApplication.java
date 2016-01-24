@@ -24,7 +24,6 @@ public class WatcherApplication extends Application<WatcherConfiguration> {
         KafkaGroupedEvents groupedEvents = new KafkaGroupedEvents();
         Thread thread = new Thread(new KafkaWatcherService(groupedEvents));
         thread.start();
-        environment.jersey().setUrlPattern("/api/*");
         environment.jersey().register(new DspEventResource(groupedEvents, environment.getObjectMapper()));
     }
 
