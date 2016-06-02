@@ -86,7 +86,7 @@ public class DspEventResource {
             Collection<GenericRecord> value = latest
                 .getValue()
                 .stream()
-                .sorted((a, b) -> CASE_INSENSITIVE_NULL_SAFE_ORDER.compare(a.get("dealId").toString(), b.get("dealId").toString()))
+                .sorted((a, b) -> CASE_INSENSITIVE_NULL_SAFE_ORDER.compare(getString(a, "dealId"), getString(b, "dealId")))
                 .collect(Collectors.toList());
             ArrayNode events = nodes.putArray("events");
             for (GenericRecord genericRecord : value) {
@@ -105,5 +105,14 @@ public class DspEventResource {
             }
         }
         return node;
+    }
+
+
+    private String getString(GenericRecord a, String dealId) {
+        Object o = a.get(dealId);
+        if (o == null) {
+            return null;
+        }
+        return o.toString();
     }
 }
