@@ -3,6 +3,7 @@ package org.robobario.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Ordering;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.robobario.service.Impression;
@@ -20,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 @Path("/dsp_event")
 @Produces(MediaType.APPLICATION_JSON)
 public class DspEventResource {
+
+    public static final Ordering<String> CASE_INSENSITIVE_NULL_SAFE_ORDER = Ordering.from(String.CASE_INSENSITIVE_ORDER).nullsLast();
 
     private KafkaGroupedEvents events;
 
@@ -83,7 +86,7 @@ public class DspEventResource {
             Collection<GenericRecord> value = latest
                 .getValue()
                 .stream()
-                .sorted((a, b) -> a.get("dealId").toString().compareTo(b.get("dealId").toString()))
+                .sorted((a, b) -> CASE_INSENSITIVE_NULL_SAFE_ORDER.compare(a.get("dealId").toString(), b.get("dealId").toString()))
                 .collect(Collectors.toList());
             ArrayNode events = nodes.putArray("events");
             for (GenericRecord genericRecord : value) {
