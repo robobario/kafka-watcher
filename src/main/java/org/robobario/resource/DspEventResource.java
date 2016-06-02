@@ -9,6 +9,7 @@ import org.robobario.service.Impression;
 import org.robobario.service.KafkaGroupedEvents;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -79,7 +80,11 @@ public class DspEventResource {
         if (latest != null) {
             ObjectNode nodes = impressions.addObject();
             nodes.put("impressionId", latest.getKey());
-            Collection<GenericRecord> value = latest.getValue();
+            Collection<GenericRecord> value = latest
+                .getValue()
+                .stream()
+                .sorted((a, b) -> a.get("dealId").toString().compareTo(b.get("dealId").toString()))
+                .collect(Collectors.toList());
             ArrayNode events = nodes.putArray("events");
             for (GenericRecord genericRecord : value) {
                 ObjectNode objectNode = events.addObject();
